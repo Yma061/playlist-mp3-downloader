@@ -1,7 +1,7 @@
 # ── Dépendances runtime ───────────────────────────────────────────────────────
 
 # Téléchargement & conversion audio
-yt-dlp==2026.2.4
+yt-dlp==2026.2.21
 
 # Lecture fichier Excel
 openpyxl==3.1.5
