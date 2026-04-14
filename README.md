@@ -1,103 +1,106 @@
 # Playlist Manager
 
-Application Windows avec interface graphique pour télécharger et gérer des playlists musicales.
+> 🇫🇷 [Version française disponible ici](README_FR.md)
 
-## Téléchargement
+A Windows GUI application to download and manage music playlists.
 
-Dernière version : **v1.2.0**  
-**[⬇ Télécharger PlaylistManager.exe](https://github.com/Yma061/deezer-youtube-mp3-downloader/releases/download/v1.2.0/PlaylistManager.exe)**
+## Download
 
-> Windows uniquement — aucune installation requise, double-cliquez pour lancer.
+Latest version: **v1.2.0**  
+**[⬇ Download PlaylistManager.exe](https://github.com/Yma061/playlist-mp3-downloader/releases/download/v1.2.0/PlaylistManager.exe)**
 
-### ⚠️ Avertissement Windows au premier lancement
+> Windows only — no installation required, just double-click to launch.
 
-Windows peut afficher un message de sécurité car le fichier n'est pas signé par un éditeur certifié. C'est normal pour une application indépendante.
+### ⚠️ Windows warning on first launch
 
-**Pour lancer l'application :**
+Windows may display a security warning because the file is not signed by a certified publisher. This is normal for an independent application.
 
-1. Clique sur **"Informations complémentaires"**
+**To launch the application:**
 
-   ![SmartScreen étape 1](docs/smartscreen_1.png)
+1. Click **"More info"**
 
-2. Clique sur **"Exécuter quand même"**
+   ![SmartScreen step 1](docs/smartscreen_1.png)
 
-   ![SmartScreen étape 2](docs/smartscreen_2.png)
+2. Click **"Run anyway"**
 
-> Le fichier est open source — tu peux inspecter l'intégralité du code dans ce dépôt.
+   ![SmartScreen step 2](docs/smartscreen_2.png)
 
----
-
-## Aperçu
-
-![Aperçu de l'application](docs/Exemple.png)
-
-![Aperçu d'une page de mode](docs/Exemple2.png)
+> The file is open source — you can inspect the full source code in this repository.
 
 ---
 
-## Fonctionnalités
+## Preview
+
+![App preview](docs/Exemple.png)
+
+![Mode page preview](docs/Exemple2.png)
+
+---
+
+## Features
 
 ### 🎵 Streaming → YouTube
-Importe une playlist depuis ta plateforme préférée dans ta bibliothèque YouTube.
+Import a playlist from your favourite platform directly into your YouTube library.
 
-| Plateforme | API requise | Compte développeur |
+| Platform | API required | Developer account |
 |---|---|---|
-| Deezer | Non | Non |
-| Spotify | Non | Non |
-| SoundCloud | Non | Non |
-| Apple Music | Non | Non |
+| Deezer | No | No |
+| Spotify | No | No |
+| SoundCloud | No | No |
+| Apple Music | No | No |
 
-- Connexion Google intégrée — une fenêtre s'ouvre dans le navigateur au premier lancement
-- Reprise automatique si la limite quotidienne de l'API est atteinte
-- Limite : ~66 titres/jour (quota Google de 10 000 unités/jour)
+- Built-in Google sign-in — a browser window opens on first launch, connection is remembered afterwards
+- Automatic resume if the daily API quota is reached
+- Limit: ~66 tracks/day (Google quota of 10,000 units/day)
 
 ### ▶ YouTube → MP3
-Télécharge une playlist YouTube complète et convertit chaque vidéo en MP3 (192 kbps).
-- Fichiers numérotés dans l'ordre de la playlist
+Download a full YouTube playlist and convert each video to MP3 (192 kbps).
+- Files numbered in playlist order
 
 ### 📊 Excel → MP3
-Télécharge des musiques dans l'ordre défini dans un fichier Excel.
-- Détection automatique des feuilles, choix de la colonne et de la ligne de départ
-- Pause aléatoire entre chaque titre pour éviter les blocages YouTube
-- Fichier `non_trouves.txt` généré si des titres n'ont pas été trouvés
-- Bouton "Réessayer les titres manquants" pour relancer uniquement les échecs
+Download tracks in the order defined in an Excel file.
+- Automatic sheet detection, configurable column and start row
+- Random pause between each track to avoid YouTube blocks
+- `not_found.txt` file generated if some tracks were not found
+- "Retry missing tracks" button to re-run only failed downloads
 
 ---
 
 ## Interface
 
-- Thème clair / sombre
-- Barre de progression avec estimation du temps restant (ETA)
-- Historique des 5 derniers téléchargements sur la page d'accueil
-- Ouverture du dossier de sortie en un clic
-- Notification sonore à la fin de chaque traitement
+- Light / dark theme
+- FR / EN language toggle
+- Progress bar with estimated time remaining (ETA)
+- History of the last 5 downloads on the home page
+- Open output folder in one click
+- Sound notification when a task completes
 
 ---
 
-## Utilisation
+## Usage
 
 ### Streaming → YouTube
-1. Lance l'application
-2. Clique sur **Streaming → YouTube**
-3. Choisis ta plateforme (Deezer, Spotify, SoundCloud ou Apple Music)
-4. Colle l'URL ou l'ID de ta playlist
-5. Clique sur **Lancer** — une fenêtre de connexion Google s'ouvre au premier lancement
-6. La connexion est mémorisée pour les prochaines fois
+1. Launch the application
+2. Click **Streaming → YouTube**
+3. Choose your platform (Deezer, Spotify, SoundCloud or Apple Music)
+4. Paste the URL or ID of your playlist
+5. Click **Run** — a Google sign-in window opens on first launch
+6. The connection is remembered for next time
 
 ### YouTube → MP3
-1. Clique sur **YouTube → MP3**
-2. Colle l'URL de la playlist YouTube
-3. Clique sur **Lancer** — les MP3 sont sauvegardés dans `playlists/`
+1. Click **YouTube → MP3**
+2. Paste the YouTube playlist URL
+3. Click **Run** — MP3s are saved in `playlists/`
 
 ### Excel → MP3
-1. Clique sur **Excel → MP3**
-2. Sélectionne ton fichier Excel via **Parcourir...**
-3. Choisis la feuille, la colonne et la première ligne de données
-4. Entre un nom de playlist et clique sur **Lancer**
+1. Click **Excel → MP3**
+2. Select your Excel file via **Browse...**
+3. Choose the sheet, column and first data row
+4. Enter a playlist name and click **Run**
 
 ---
 
-## Installation depuis les sources
+## Installation from source
 
 ```bash
 pip install -r requirements.txt
@@ -115,3 +118,9 @@ pyinstaller PlaylistManager.spec
 ## Technologies
 
 Python · Tkinter · yt-dlp · spotdl · Deezer API · Spotify · SoundCloud · Apple Music · YouTube Data API v3 · openpyxl · keyring · PyInstaller
+
+---
+
+## License
+
+[MIT](LICENSE) © 2026 Yma061

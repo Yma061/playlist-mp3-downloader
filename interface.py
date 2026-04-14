@@ -5,6 +5,7 @@ import sys
 import os
 import time
 import json
+from translations import t, set_lang, get_lang
 
 
 def _app_dir():
@@ -106,7 +107,7 @@ class TextRedirector:
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Playlist Manager")
+        self.title(t("app_title"))
         self.geometry("1050x680")
         self.resizable(True, True)
         self.minsize(900, 600)
@@ -121,9 +122,8 @@ class App(tk.Tk):
         for w in self.container.winfo_children():
             w.destroy()
 
-    def toggle_theme(self):
-        new = "light" if _current_theme == "dark" else "dark"
-        _apply_theme(new)
+    def _rebuild(self):
+        self.title(t("app_title"))
         self.configure(bg=BG)
         self.container.configure(bg=BG)
         if   self._page == "home":              self.show_home()
@@ -131,6 +131,15 @@ class App(tk.Tk):
         elif self._page == "detail":            self.show_detail(self._mode)
         elif self._page == "json_help":         self.show_json_help(self._mode)
         elif self._page == "deezer_help":       self.show_deezer_id_help(self._mode)
+
+    def toggle_theme(self):
+        new = "light" if _current_theme == "dark" else "dark"
+        _apply_theme(new)
+        self._rebuild()
+
+    def toggle_lang(self):
+        set_lang("en" if get_lang() == "fr" else "fr")
+        self._rebuild()
 
     def show_home(self):
         self._page = "home"; self.clear()
@@ -157,14 +166,11 @@ class App(tk.Tk):
 class HomePage(tk.Frame):
     CARDS = [
         {"mode": "streaming", "color": ACCENT1, "icon": "🎵",
-         "title": "Streaming  →  YouTube",
-         "desc":  "Importe une playlist Deezer ou Spotify\ndans ta bibliothèque YouTube"},
-        {"mode": "youtube", "color": ACCENT2, "icon": "▶",
-         "title": "YouTube  →  MP3",
-         "desc":  "Télécharge une playlist YouTube\net convertit chaque vidéo en MP3"},
-        {"mode": "excel",   "color": ACCENT3, "icon": "📊",
-         "title": "Excel  →  MP3",
-         "desc":  "Télécharge les musiques dans\nl'ordre défini dans un fichier Excel"},
+         "title_key": "card_streaming_title", "desc_key": "card_streaming_desc"},
+        {"mode": "youtube",   "color": ACCENT2, "icon": "▶",
+         "title_key": "card_youtube_title",   "desc_key": "card_youtube_desc"},
+        {"mode": "excel",     "color": ACCENT3, "icon": "📊",
+         "title_key": "card_excel_title",     "desc_key": "card_excel_desc"},
     ]
 
     def __init__(self, parent, app):
@@ -178,15 +184,20 @@ class HomePage(tk.Frame):
         top = tk.Frame(self, bg=BG)
         top.pack(fill="x", padx=20, pady=(12, 0))
         icon = "☀" if _current_theme == "dark" else "🌙"
-        tk.Button(top, text=f"{icon} Thème", font=FONT_SMALL,
-                  bg=BG2, fg=FG, bd=0, cursor="hand2",
+        tk.Button(top, text=t("lang_btn"), font=("Segoe UI", 12, "bold"),
+                  bg=ACCENT1, fg="white", bd=0, cursor="hand2",
+                  activebackground=_lighten(ACCENT1), activeforeground="white",
+                  padx=14, pady=6, command=self.app.toggle_lang
+                  ).pack(side="right", padx=(6, 0))
+        tk.Button(top, text=f"{icon} " + t("theme_dark" if _current_theme == "dark" else "theme_light").split()[1],
+                  font=FONT_SMALL, bg=BG2, fg=FG, bd=0, cursor="hand2",
                   activebackground=_lighten(BG2), activeforeground=FG,
                   padx=10, pady=4, command=self.app.toggle_theme
                   ).pack(side="right")
 
-        tk.Label(self, text="Playlist Manager", font=FONT_TITLE,
+        tk.Label(self, text=t("app_title"), font=FONT_TITLE,
                  bg=BG, fg=FG).pack(pady=(20, 4))
-        tk.Label(self, text="Choisissez une action", font=FONT,
+        tk.Label(self, text=t("choose_action"), font=FONT,
                  bg=BG, fg=FG2).pack(pady=(0, 28))
 
         cards_frame = tk.Frame(self, bg=BG)
@@ -198,7 +209,7 @@ class HomePage(tk.Frame):
         history = load_history()
         if history:
             tk.Frame(self, bg=FG2, height=1).pack(fill="x", padx=40, pady=(28, 0))
-            tk.Label(self, text="Téléchargements récents", font=FONT_H2,
+            tk.Label(self, text=t("recent_dl"), font=FONT_H2,
                      bg=BG, fg=FG2).pack(pady=(10, 4))
             for entry in history[:5]:
                 mode_colors = {"deezer": ACCENT1, "spotify": ACCENT_SPOTIFY, "soundcloud": ACCENT_SOUNDCLOUD, "applemusic": ACCENT_APPLE, "youtube": ACCENT2, "excel": ACCENT3}
@@ -223,9 +234,9 @@ class HomePage(tk.Frame):
         color = card["color"]
         frame = tk.Frame(parent, bg=color, cursor="hand2", padx=24, pady=20, bd=0)
         frame.pack(side="left", padx=14)
-        tk.Label(frame, text=card["icon"], font=("Segoe UI", 28), bg=color, fg="white").pack()
-        tk.Label(frame, text=card["title"], font=FONT_H2,   bg=color, fg="white").pack(pady=(6,4))
-        tk.Label(frame, text=card["desc"],  font=FONT_SMALL, bg=color, fg="white",
+        tk.Label(frame, text=card["icon"],             font=("Segoe UI", 28), bg=color, fg="white").pack()
+        tk.Label(frame, text=t(card["title_key"]),     font=FONT_H2,          bg=color, fg="white").pack(pady=(6,4))
+        tk.Label(frame, text=t(card["desc_key"]),      font=FONT_SMALL,       bg=color, fg="white",
                  justify="center").pack()
         def _on_click(e, m=card["mode"]):
             if m == "streaming":
@@ -253,18 +264,14 @@ ACCENT_APPLE       = "#fc3c44"
 
 class StreamingSelectPage(tk.Frame):
     CARDS = [
-        {"mode": "deezer",  "color": ACCENT1,       "icon": "🎵",
-         "title": "Deezer  →  YouTube",
-         "desc":  "Importe une playlist Deezer\ndans ta bibliothèque YouTube"},
-        {"mode": "spotify",     "color": ACCENT_SPOTIFY,    "icon": "🟢",
-         "title": "Spotify  →  YouTube",
-         "desc":  "Importe une playlist Spotify\ndans ta bibliothèque YouTube"},
-        {"mode": "soundcloud", "color": ACCENT_SOUNDCLOUD, "icon": "☁",
-         "title": "SoundCloud  →  YouTube",
-         "desc":  "Importe une playlist SoundCloud\ndans ta bibliothèque YouTube"},
-        {"mode": "applemusic", "color": ACCENT_APPLE,      "icon": "🍎",
-         "title": "Apple Music  →  YouTube",
-         "desc":  "Importe une playlist Apple Music\ndans ta bibliothèque YouTube"},
+        {"mode": "deezer",      "color": ACCENT1,          "icon": "🎵",
+         "title_key": "card_deezer_title",      "desc_key": "card_deezer_desc"},
+        {"mode": "spotify",     "color": ACCENT_SPOTIFY,   "icon": "🟢",
+         "title_key": "card_spotify_title",     "desc_key": "card_spotify_desc"},
+        {"mode": "soundcloud",  "color": ACCENT_SOUNDCLOUD,"icon": "☁",
+         "title_key": "card_soundcloud_title",  "desc_key": "card_soundcloud_desc"},
+        {"mode": "applemusic",  "color": ACCENT_APPLE,     "icon": "🍎",
+         "title_key": "card_apple_title",       "desc_key": "card_apple_desc"},
     ]
 
     def __init__(self, parent, app):
@@ -276,19 +283,24 @@ class StreamingSelectPage(tk.Frame):
     def _build(self):
         header = tk.Frame(self, bg=ACCENT1, pady=16)
         header.pack(fill="x")
-        tk.Button(header, text="← Retour", font=FONT_SMALL,
+        tk.Button(header, text=t("back"), font=FONT_SMALL,
                   bg=ACCENT1, fg="white", bd=0, cursor="hand2",
                   activebackground=_lighten(ACCENT1), activeforeground="white",
                   command=self.app.show_home).pack(side="left", padx=16)
-        tk.Label(header, text="Streaming  →  YouTube", font=FONT_H2,
+        tk.Label(header, text=t("card_streaming_title"), font=FONT_H2,
                  bg=ACCENT1, fg="white").pack(side="left", padx=8)
         icon = "☀" if _current_theme == "dark" else "🌙"
+        tk.Button(header, text=t("lang_btn"), font=("Segoe UI", 12, "bold"),
+                  bg="white", fg=ACCENT1, bd=0, cursor="hand2",
+                  activebackground="#eeeeee", activeforeground=ACCENT1,
+                  padx=14, pady=6,
+                  command=self.app.toggle_lang).pack(side="right", padx=(6, 16))
         tk.Button(header, text=icon, font=FONT_SMALL,
                   bg=ACCENT1, fg="white", bd=0, cursor="hand2",
                   activebackground=_lighten(ACCENT1),
-                  command=self.app.toggle_theme).pack(side="right", padx=16)
+                  command=self.app.toggle_theme).pack(side="right", padx=4)
 
-        tk.Label(self, text="Choisissez votre plateforme", font=FONT,
+        tk.Label(self, text=t("choose_platform"), font=FONT,
                  bg=BG, fg=FG2).pack(pady=(30, 20))
 
         # Rangée 1 — Deezer + Spotify
@@ -307,9 +319,9 @@ class StreamingSelectPage(tk.Frame):
         color = card["color"]
         frame = tk.Frame(parent, bg=color, cursor="hand2", padx=26, pady=20, bd=0)
         frame.pack(side="left", padx=14)
-        tk.Label(frame, text=card["icon"], font=("Segoe UI", 32), bg=color, fg="white").pack()
-        tk.Label(frame, text=card["title"], font=FONT_H2,    bg=color, fg="white").pack(pady=(8, 4))
-        tk.Label(frame, text=card["desc"],  font=FONT_SMALL, bg=color, fg="white",
+        tk.Label(frame, text=card["icon"],           font=("Segoe UI", 32), bg=color, fg="white").pack()
+        tk.Label(frame, text=t(card["title_key"]),   font=FONT_H2,          bg=color, fg="white").pack(pady=(8, 4))
+        tk.Label(frame, text=t(card["desc_key"]),    font=FONT_SMALL,       bg=color, fg="white",
                  justify="center").pack()
         for w in [frame] + frame.winfo_children():
             w.bind("<Button-1>", lambda e, m=card["mode"]: self.app.show_detail(m))
@@ -328,106 +340,59 @@ class StreamingSelectPage(tk.Frame):
 # ── Config des modes ──────────────────────────────────────────────────────────
 MODES = {
     "deezer": {
-        "color": ACCENT1, "title": "Deezer  →  YouTube",
-        "what": ("Récupère tous les titres d'une playlist Deezer et les importe "
-                 "automatiquement dans une nouvelle playlist YouTube sur ton compte Google."),
-        "needs": [
-            "L'ID de ta playlist Deezer  (ex : 14838804003)",
-            "Une connexion internet",
-            "Au premier lancement : connexion à ton compte Google dans le navigateur",
-            "✅  Connexion mémorisée — tu n'auras à te connecter qu'une seule fois.",
-            "⚠  Limite YouTube : 10 000 unités/jour — chaque titre coûte 150 unités.",
-            "⚠  Pour 190 titres (~28 500 unités), l'import devra être étalé sur 3 jours.",
-            "✅  Reprise automatique : relancez avec le même ID, l'import reprend là où il s'est arrêté.",
-        ],
+        "color": ACCENT1, "title_key": "card_deezer_title",
+        "what_key": "deezer_what", "needs_key": "deezer_needs",
         "inputs": [
-            {"label": "ID de la playlist Deezer", "key": "deezer_id",
-             "placeholder": "ex : 14838804003"},
+            {"label_key": "deezer_input_label", "key": "deezer_id",
+             "placeholder_key": "deezer_input_placeholder"},
         ],
         "run": "run_deezer",
     },
     "spotify": {
-        "color": ACCENT_SPOTIFY, "title": "Spotify  →  YouTube",
-        "what": ("Récupère tous les titres d'une playlist Spotify et les importe "
-                 "automatiquement dans une nouvelle playlist YouTube sur ton compte Google."),
-        "needs": [
-            "L'URL de ta playlist Spotify  (ex : https://open.spotify.com/playlist/...)",
-            "La playlist doit être publique",
-            "Une connexion internet",
-            "Au premier lancement : connexion à ton compte Google dans le navigateur",
-            "✅  Connexion mémorisée — tu n'auras à te connecter qu'une seule fois.",
-            "⚠  Limite YouTube : 10 000 unités/jour — chaque titre coûte 150 unités.",
-            "✅  Reprise automatique : relancez avec la même URL, l'import reprend là où il s'est arrêté.",
-        ],
+        "color": ACCENT_SPOTIFY, "title_key": "card_spotify_title",
+        "what_key": "spotify_what", "needs_key": "spotify_needs",
         "inputs": [
-            {"label": "URL de la playlist Spotify", "key": "spotify_url",
-             "placeholder": "https://open.spotify.com/playlist/..."},
+            {"label_key": "spotify_input_label", "key": "spotify_url",
+             "placeholder_key": "spotify_input_placeholder"},
         ],
         "run": "run_spotify",
     },
     "soundcloud": {
-        "color": ACCENT_SOUNDCLOUD, "title": "SoundCloud  →  YouTube",
-        "what": ("Récupère tous les titres d'une playlist SoundCloud publique et les importe "
-                 "automatiquement dans une nouvelle playlist YouTube sur ton compte Google."),
-        "needs": [
-            "L'URL de ta playlist SoundCloud  (ex : https://soundcloud.com/user/sets/playlist)",
-            "La playlist doit être publique",
-            "Une connexion internet",
-            "Au premier lancement : connexion à ton compte Google dans le navigateur",
-            "✅  Connexion mémorisée — tu n'auras à te connecter qu'une seule fois.",
-            "⚠  Limite YouTube : 10 000 unités/jour — chaque titre coûte 150 unités.",
-            "✅  Reprise automatique : relancez avec la même URL, l'import reprend là où il s'est arrêté.",
-        ],
+        "color": ACCENT_SOUNDCLOUD, "title_key": "card_soundcloud_title",
+        "what_key": "soundcloud_what", "needs_key": "soundcloud_needs",
         "inputs": [
-            {"label": "URL de la playlist SoundCloud", "key": "soundcloud_url",
-             "placeholder": "https://soundcloud.com/user/sets/playlist"},
+            {"label_key": "soundcloud_input_label", "key": "soundcloud_url",
+             "placeholder_key": "soundcloud_input_placeholder"},
         ],
         "run": "run_soundcloud",
     },
     "applemusic": {
-        "color": ACCENT_APPLE, "title": "Apple Music  →  YouTube",
-        "what": ("Récupère tous les titres d'une playlist Apple Music publique et les importe "
-                 "automatiquement dans une nouvelle playlist YouTube sur ton compte Google. "
-                 "Aucun compte développeur Apple requis."),
-        "needs": [
-            "L'URL de ta playlist Apple Music  (ex : https://music.apple.com/fr/playlist/...)",
-            "La playlist doit être publique",
-            "Une connexion internet",
-            "Au premier lancement : connexion à ton compte Google dans le navigateur",
-            "✅  Connexion mémorisée — tu n'auras à te connecter qu'une seule fois.",
-            "⚠  Limite YouTube : 10 000 unités/jour — chaque titre coûte 150 unités.",
-            "✅  Reprise automatique : relancez avec la même URL, l'import reprend là où il s'est arrêté.",
-        ],
+        "color": ACCENT_APPLE, "title_key": "card_apple_title",
+        "what_key": "apple_what", "needs_key": "apple_needs",
         "inputs": [
-            {"label": "URL de la playlist Apple Music", "key": "apple_url",
-             "placeholder": "https://music.apple.com/fr/playlist/..."},
+            {"label_key": "apple_input_label", "key": "apple_url",
+             "placeholder_key": "apple_input_placeholder"},
         ],
         "run": "run_applemusic",
     },
     "youtube": {
-        "color": ACCENT2, "title": "YouTube  →  MP3",
-        "what": ("Télécharge toutes les vidéos d'une playlist YouTube et les convertit "
-                 "en fichiers MP3 (192 kbps), classés dans un dossier portant le nom "
-                 "de la playlist. Les fichiers sont numérotés dans l'ordre de la playlist."),
-        "needs": ["L'URL complète de la playlist YouTube", "Une connexion internet"],
+        "color": ACCENT2, "title_key": "card_youtube_title",
+        "what_key": "youtube_what", "needs_key": "youtube_needs",
         "inputs": [
-            {"label": "URL de la playlist YouTube", "key": "yt_url",
-             "placeholder": "https://www.youtube.com/playlist?list=..."},
+            {"label_key": "youtube_input_label", "key": "yt_url",
+             "placeholder_key": "youtube_input_placeholder"},
         ],
         "run": "run_youtube",
     },
     "excel": {
-        "color": ACCENT3, "title": "Excel  →  MP3",
-        "what": ("Lit un fichier Excel contenant une liste de titres, recherche chaque "
-                 "chanson sur YouTube et la télécharge en MP3 dans l'ordre du fichier. "
-                 "Une pause automatique est appliquée entre chaque titre."),
-        "needs": ["Un fichier Excel avec les titres musicaux", "Une connexion internet"],
+        "color": ACCENT3, "title_key": "card_excel_title",
+        "what_key": "excel_what", "needs_key": "excel_needs",
         "inputs": [
-            {"label": "Fichier Excel", "key": "excel_path",
-             "placeholder": "Clique sur Parcourir...", "browse": True,
-             "filetypes": [("Excel", "*.xlsx *.xls"), ("Tous", "*.*")]},
-            {"label": "Nom de la playlist", "key": "playlist_name",
-             "placeholder": "ex : 1er mai 2026"},
+            {"label_key": "excel_input_file_label", "key": "excel_path",
+             "placeholder_key": "excel_input_file_placeholder", "browse": True,
+             "filetypes": [("Excel", "*.xlsx *.xls"), ("All", "*.*")]},
+            {"label_key": "excel_input_name_label", "key": "playlist_name",
+             "placeholder_key": "excel_input_name_placeholder"},
         ],
         "run": "run_excel",
     },
@@ -457,31 +422,36 @@ class DetailPage(tk.Frame):
         # ── Header ──────────────────────────────────────────────────────────
         header = tk.Frame(self, bg=color, pady=16)
         header.pack(fill="x")
-        tk.Button(header, text="← Retour", font=FONT_SMALL,
+        tk.Button(header, text=t("back"), font=FONT_SMALL,
                   bg=color, fg="white", bd=0, cursor="hand2",
                   activebackground=_lighten(color), activeforeground="white",
                   command=self.app.show_home).pack(side="left", padx=16)
-        tk.Label(header, text=self.cfg["title"], font=FONT_H2,
+        tk.Label(header, text=t(self.cfg["title_key"]), font=FONT_H2,
                  bg=color, fg="white").pack(side="left", padx=8)
         icon = "☀" if _current_theme == "dark" else "🌙"
+        tk.Button(header, text=t("lang_btn"), font=("Segoe UI", 12, "bold"),
+                  bg="white", fg=color, bd=0, cursor="hand2",
+                  activebackground="#eeeeee", activeforeground=color,
+                  padx=14, pady=6,
+                  command=self.app.toggle_lang).pack(side="right", padx=(6, 16))
         tk.Button(header, text=icon, font=FONT_SMALL,
                   bg=color, fg="white", bd=0, cursor="hand2",
                   activebackground=_lighten(color),
-                  command=self.app.toggle_theme).pack(side="right", padx=16)
+                  command=self.app.toggle_theme).pack(side="right", padx=4)
 
         # ── Corps scrollable ─────────────────────────────────────────────────
         body = make_scrollable(self)
         self._body = body
 
-        tk.Label(body, text="Ce que ça fait", font=FONT_H2,
+        tk.Label(body, text=t("what_it_does"), font=FONT_H2,
                  bg=BG, fg=color, anchor="w").pack(fill="x")
-        tk.Label(body, text=self.cfg["what"], font=FONT,
+        tk.Label(body, text=t(self.cfg["what_key"]), font=FONT,
                  bg=BG, fg=FG, wraplength=900, justify="left",
                  anchor="w").pack(fill="x", pady=(4, 14))
 
-        tk.Label(body, text="Ce dont vous avez besoin", font=FONT_H2,
+        tk.Label(body, text=t("what_you_need"), font=FONT_H2,
                  bg=BG, fg=color, anchor="w").pack(fill="x")
-        for item in self.cfg["needs"]:
+        for item in t(self.cfg["needs_key"]):
             tk.Label(body, text=f"  •  {item}", font=FONT,
                      bg=BG, fg=FG2, anchor="w").pack(fill="x")
 
@@ -491,7 +461,7 @@ class DetailPage(tk.Frame):
             self._make_input(body, inp)
 
         # ── Bouton Lancer ────────────────────────────────────────────────────
-        self.btn_launch = tk.Button(body, text="  Lancer le script  ", font=FONT_H2,
+        self.btn_launch = tk.Button(body, text=t("launch"), font=FONT_H2,
                                     bg=color, fg="white", bd=0, cursor="hand2",
                                     activebackground=_lighten(color), activeforeground="white",
                                     pady=10, command=self._launch)
@@ -519,14 +489,14 @@ class DetailPage(tk.Frame):
         self._btn_row.pack(fill="x", pady=(8, 0))
 
         self.btn_open_folder = tk.Button(
-            self._btn_row, text="📂 Ouvrir le dossier", font=FONT,
+            self._btn_row, text=t("open_folder"), font=FONT,
             bg=color, fg="white", bd=0, cursor="hand2",
             activebackground=_lighten(color), activeforeground="white",
             padx=12, pady=6,
             command=self._open_folder)
 
         self.btn_retry = tk.Button(
-            self._btn_row, text="🔄 Réessayer les titres manquants", font=FONT,
+            self._btn_row, text=t("retry_failed"), font=FONT,
             bg="#dc2626", fg="white", bd=0, cursor="hand2",
             activebackground="#ef4444", activeforeground="white",
             padx=12, pady=6,
@@ -540,7 +510,9 @@ class DetailPage(tk.Frame):
 
     # ── Inputs ───────────────────────────────────────────────────────────────
     def _make_input(self, parent, inp):
-        tk.Label(parent, text=inp["label"], font=FONT,
+        label = t(inp["label_key"]) if "label_key" in inp else inp.get("label", "")
+        ph    = t(inp["placeholder_key"]) if "placeholder_key" in inp else inp.get("placeholder", "")
+        tk.Label(parent, text=label, font=FONT,
                  bg=BG, fg=FG, anchor="w").pack(fill="x", pady=(6, 0))
         row = tk.Frame(parent, bg=BG)
         row.pack(fill="x")
@@ -550,16 +522,16 @@ class DetailPage(tk.Frame):
 
         entry = tk.Entry(row, textvariable=var, font=FONT,
                          bg=BG2, fg=FG, insertbackground=FG, relief="flat", bd=6)
-        entry.insert(0, inp["placeholder"])
+        entry.insert(0, ph)
         entry.configure(fg=FG2)
 
-        def on_focus_in(e, ph=inp["placeholder"], v=var, en=entry):
-            if v.get() == ph:
+        def on_focus_in(e, _ph=ph, v=var, en=entry):
+            if v.get() == _ph:
                 en.delete(0, tk.END); en.configure(fg=FG)
 
-        def on_focus_out(e, ph=inp["placeholder"], v=var, en=entry):
+        def on_focus_out(e, _ph=ph, v=var, en=entry):
             if not v.get():
-                en.insert(0, ph); en.configure(fg=FG2)
+                en.insert(0, _ph); en.configure(fg=FG2)
 
         entry.bind("<FocusIn>",  on_focus_in)
         entry.bind("<FocusOut>", on_focus_out)
@@ -567,8 +539,8 @@ class DetailPage(tk.Frame):
 
         if inp.get("browse"):
             color = self.cfg["color"]
-            filetypes = inp.get("filetypes", [("Tous", "*.*")])
-            tk.Button(row, text="Parcourir...", font=FONT_SMALL,
+            filetypes = inp.get("filetypes", [("All", "*.*")])
+            tk.Button(row, text=t("browse"), font=FONT_SMALL,
                       bg=color, fg="white", bd=0, cursor="hand2",
                       activebackground=_lighten(color),
                       command=lambda v=var, en=entry, ft=filetypes: self._browse(v, en, ft)
@@ -594,7 +566,7 @@ class DetailPage(tk.Frame):
             # Feuille
             r1 = tk.Frame(self._excel_opts_frame, bg=BG)
             r1.pack(fill="x", pady=(6, 0))
-            tk.Label(r1, text="Feuille", font=FONT, bg=BG, fg=FG,
+            tk.Label(r1, text=t("excel_sheet"), font=FONT, bg=BG, fg=FG,
                      width=10, anchor="w").pack(side="left")
             self._sheet_combo = ttk.Combobox(r1, textvariable=self._excel_sheet_var,
                                              state="readonly", font=FONT, width=24)
@@ -602,12 +574,12 @@ class DetailPage(tk.Frame):
             # Colonne + première ligne
             r2 = tk.Frame(self._excel_opts_frame, bg=BG)
             r2.pack(fill="x", pady=(4, 0))
-            tk.Label(r2, text="Colonne", font=FONT, bg=BG, fg=FG,
+            tk.Label(r2, text=t("excel_col"), font=FONT, bg=BG, fg=FG,
                      width=10, anchor="w").pack(side="left")
             tk.Entry(r2, textvariable=self._excel_col_var, font=FONT,
                      bg=BG2, fg=FG, insertbackground=FG,
                      relief="flat", bd=6, width=6).pack(side="left")
-            tk.Label(r2, text="   1ère ligne de données", font=FONT,
+            tk.Label(r2, text=t("excel_first_row"), font=FONT,
                      bg=BG, fg=FG2).pack(side="left", padx=(12, 4))
             tk.Entry(r2, textvariable=self._excel_row_var, font=FONT,
                      bg=BG2, fg=FG, insertbackground=FG,
@@ -637,7 +609,8 @@ class DetailPage(tk.Frame):
 
     def _get(self, key):
         val = self.vars[key].get().strip()
-        ph  = next((i["placeholder"] for i in self.cfg["inputs"] if i["key"] == key), "")
+        inp = next((i for i in self.cfg["inputs"] if i["key"] == key), {})
+        ph  = t(inp["placeholder_key"]) if "placeholder_key" in inp else inp.get("placeholder", "")
         return "" if val == ph else val
 
     # ── Progression ──────────────────────────────────────────────────────────
@@ -645,9 +618,9 @@ class DetailPage(tk.Frame):
         self._start_time = time.time()
         self._prog_total = total
         self.progressbar.configure(maximum=total, value=0)
-        self.lbl_status.configure(text="En cours...")
-        self.lbl_count.configure(text=f"0 / {total} musiques")
-        self.lbl_eta.configure(text="Calcul en cours...")
+        self.lbl_status.configure(text=t("in_progress"))
+        self.lbl_count.configure(text=t("tracks_count", done=0, total=total))
+        self.lbl_eta.configure(text=t("calculating_eta"))
         self.lbl_current.configure(text="")
         self.btn_open_folder.pack_forget()
         self.btn_retry.pack_forget()
@@ -657,22 +630,22 @@ class DetailPage(tk.Frame):
     def update_progress(self, done, current=""):
         def _ui():
             self.progressbar.configure(value=done)
-            self.lbl_count.configure(text=f"{done} / {self._prog_total} musiques")
+            self.lbl_count.configure(text=t("tracks_count", done=done, total=self._prog_total))
             if current:
-                self.lbl_current.configure(text=f"En cours : {current}")
+                self.lbl_current.configure(text=t("currently", title=current))
             elapsed = time.time() - self._start_time
             if done > 0:
                 eta_sec = int(elapsed / done * (self._prog_total - done))
                 if eta_sec < 60:
-                    eta_str = "moins d'une minute"
+                    eta_str = t("less_than_minute")
                 elif eta_sec < 3600:
-                    eta_str = f"{eta_sec // 60} min restante(s)"
+                    eta_str = t("minutes_left", n=eta_sec // 60)
                 else:
                     h, m = divmod(eta_sec // 60, 60)
-                    eta_str = f"{h}h {m:02d}min restante(s)"
+                    eta_str = t("hours_left", h=h, m=m)
                 self.lbl_eta.configure(text=eta_str)
             if done >= self._prog_total:
-                self.lbl_status.configure(text="Terminé !")
+                self.lbl_status.configure(text=t("done"))
                 self.lbl_eta.configure(text="")
                 self.lbl_current.configure(text="")
                 self.btn_launch.configure(state="normal")
@@ -733,9 +706,9 @@ class DetailPage(tk.Frame):
     def run_deezer(self):
         deezer_id = self._get("deezer_id")
         if not deezer_id:
-            print("Erreur : veuillez entrer un ID de playlist Deezer."); return
+            print(t("err_no_deezer_id")); return
         if not deezer_id.isdigit():
-            print("Erreur : l'ID Deezer doit être un nombre (ex : 14838804003)."); return
+            print(t("err_invalid_deezer_id")); return
         try:
             from deezer import get_deezer_tracks
             from youtube import get_youtube_service, create_playlist, add_videos, QuotaExceededError
@@ -789,16 +762,16 @@ class DetailPage(tk.Frame):
                 print(f"⚠  Limite quotidienne YouTube atteinte après {done} titres.")
                 print(f"   Il reste {total-done} titre(s). Relancez demain avec le même ID.")
         except Exception as e:
-            print(f"ERREUR : {e}")
+            print(t("err_generic", e=e))
 
     def run_spotify(self):
         import re
         url = self._get("spotify_url")
         if not url:
-            print("Erreur : veuillez entrer une URL de playlist Spotify."); return
+            print(t("err_no_spotify_url")); return
         match = re.search(r'playlist/([a-zA-Z0-9]+)', url)
         if not match:
-            print("Erreur : URL de playlist Spotify invalide."); return
+            print(t("err_invalid_spotify_url")); return
         playlist_id = match.group(1)
 
         try:
@@ -854,15 +827,15 @@ class DetailPage(tk.Frame):
                 print(f"⚠  Limite quotidienne YouTube atteinte après {done} titres.")
                 print(f"   Il reste {total-done} titre(s). Relancez demain avec la même URL.")
         except Exception as e:
-            print(f"ERREUR : {e}")
+            print(t("err_generic", e=e))
 
     def run_applemusic(self):
         import re
         url = self._get("apple_url")
         if not url:
-            print("Erreur : veuillez entrer une URL de playlist Apple Music."); return
+            print(t("err_no_apple_url")); return
         if "music.apple.com" not in url:
-            print("Erreur : URL Apple Music invalide."); return
+            print(t("err_invalid_apple_url")); return
 
         playlist_id = re.sub(r'[^a-zA-Z0-9]', '_', url.split("music.apple.com/")[-1])[:40]
 
@@ -919,15 +892,15 @@ class DetailPage(tk.Frame):
                 print(f"⚠  Limite quotidienne YouTube atteinte après {done} titres.")
                 print(f"   Il reste {total-done} titre(s). Relancez demain avec la même URL.")
         except Exception as e:
-            print(f"ERREUR : {e}")
+            print(t("err_generic", e=e))
 
     def run_soundcloud(self):
         import re
         url = self._get("soundcloud_url")
         if not url:
-            print("Erreur : veuillez entrer une URL de playlist SoundCloud."); return
+            print(t("err_no_sc_url")); return
         if "soundcloud.com" not in url:
-            print("Erreur : URL SoundCloud invalide."); return
+            print(t("err_invalid_sc_url")); return
 
         playlist_id = re.sub(r'[^a-zA-Z0-9]', '_', url.split("soundcloud.com/")[-1])
 
@@ -984,12 +957,12 @@ class DetailPage(tk.Frame):
                 print(f"⚠  Limite quotidienne YouTube atteinte après {done} titres.")
                 print(f"   Il reste {total-done} titre(s). Relancez demain avec la même URL.")
         except Exception as e:
-            print(f"ERREUR : {e}")
+            print(t("err_generic", e=e))
 
     def run_youtube(self):
         url = self._get("yt_url")
         if not url:
-            print("Erreur : veuillez entrer une URL de playlist YouTube."); return
+            print(t("err_no_yt_url")); return
         try:
             from youtube_to_mp3 import download_and_convert_playlist
 
@@ -1007,15 +980,15 @@ class DetailPage(tk.Frame):
             save_history({"mode": "youtube", "name": url[:60],
                           "count": self._prog_total, "date": _today(), "path": dest_abs})
         except Exception as e:
-            print(f"ERREUR : {e}")
+            print(t("err_generic", e=e))
 
     def run_excel(self):
         path = self._get("excel_path")
         name = self._get("playlist_name")
         if not path:
-            print("Erreur : veuillez sélectionner un fichier Excel."); return
+            print(t("err_no_excel_file")); return
         if not name:
-            print("Erreur : veuillez entrer un nom de playlist."); return
+            print(t("err_no_playlist_name")); return
 
         sheet    = self._excel_sheet_var.get() or "Deezer"
         col_str  = self._excel_col_var.get().strip().upper()
@@ -1048,7 +1021,7 @@ class DetailPage(tk.Frame):
             save_history({"mode": "excel", "name": name,
                           "count": total, "date": _today(), "path": dest_abs})
         except Exception as e:
-            print(f"ERREUR : {e}")
+            print(t("err_generic", e=e))
 
 
 def _today():
@@ -1060,7 +1033,7 @@ def _today():
 def _help_header(page, color, title, back_cmd):
     header = tk.Frame(page, bg=color, pady=16)
     header.pack(fill="x")
-    tk.Button(header, text="← Retour", font=FONT_SMALL,
+    tk.Button(header, text=t("back"), font=FONT_SMALL,
               bg=color, fg="white", bd=0, cursor="hand2",
               activebackground=_lighten(color), activeforeground="white",
               command=back_cmd).pack(side="left", padx=16)
