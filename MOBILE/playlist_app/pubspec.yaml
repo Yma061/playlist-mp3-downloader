@@ -1,0 +1,29 @@
+name: playlist_manager
+description: "Playlist Manager - Download and manage music playlists"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  provider: ^6.1.2
+  shared_preferences: ^2.3.3
+  http: ^1.2.2
+  url_launcher: ^6.3.1
+  file_picker: ^8.1.6
+  flutter_animate: ^4.5.0
+  web_socket_channel: ^3.0.2
+  app_links: ^6.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
