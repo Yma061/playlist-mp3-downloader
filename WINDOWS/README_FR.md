@@ -4,8 +4,8 @@ Application Windows avec interface graphique pour télécharger et gérer des pl
 
 ## Téléchargement
 
-Dernière version : **v1.2.0**  
-**[⬇ Télécharger PlaylistManager.exe](https://github.com/Yma061/playlist-mp3-downloader/releases/download/v1.2.0/PlaylistManager.exe)**
+Dernière version : **v2.0.0**  
+**[⬇ Télécharger PlaylistManager.exe](https://github.com/Yma061/playlist-mp3-downloader/releases/download/v2.0.0/PlaylistManager.exe)**
 
 > Windows uniquement — aucune installation requise, double-cliquez pour lancer.
 

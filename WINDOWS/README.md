@@ -6,8 +6,8 @@ A Windows GUI application to download and manage music playlists.
 
 ## Download
 
-Latest version: **v1.2.0**  
-**[⬇ Download PlaylistManager.exe](https://github.com/Yma061/playlist-mp3-downloader/releases/download/v1.2.0/PlaylistManager.exe)**
+Latest version: **v2.0.0**  
+**[⬇ Download PlaylistManager.exe](https://github.com/Yma061/playlist-mp3-downloader/releases/download/v2.0.0/PlaylistManager.exe)**
 
 > Windows only — no installation required, just double-click to launch.
 
