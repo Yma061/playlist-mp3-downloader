@@ -1,6 +1,6 @@
 # Playlist Manager
 
-Application Windows avec interface graphique pour télécharger et gérer des playlists musicales.
+Application Windows avec interface graphique pour télécharger et gérer des playlists musicales, avec un serveur Wi-Fi intégré pour synchroniser avec le mobile.
 
 ## Téléchargement
 
@@ -16,22 +16,9 @@ Windows peut afficher un message de sécurité car le fichier n'est pas signé p
 **Pour lancer l'application :**
 
 1. Clique sur **"Informations complémentaires"**
-
-   ![SmartScreen étape 1](docs/smartscreen_1.png)
-
 2. Clique sur **"Exécuter quand même"**
 
-   ![SmartScreen étape 2](docs/smartscreen_2.png)
-
 > Le fichier est open source — tu peux inspecter l'intégralité du code dans ce dépôt.
-
----
-
-## Aperçu
-
-![Aperçu de l'application](docs/Exemple.png)
-
-![Aperçu d'une page de mode](docs/Exemple2.png)
 
 ---
 
@@ -53,14 +40,19 @@ Importe une playlist depuis ta plateforme préférée dans ta bibliothèque YouT
 
 ### ▶ YouTube → MP3
 Télécharge une playlist YouTube complète et convertit chaque vidéo en MP3 (192 kbps).
-- Fichiers numérotés dans l'ordre de la playlist
+- Fichiers sauvegardés dans `~/PlaylistManager/`, immédiatement disponibles sur mobile
 
 ### 📊 Excel → MP3
 Télécharge des musiques dans l'ordre défini dans un fichier Excel.
-- Détection automatique des feuilles, choix de la colonne et de la ligne de départ
-- Pause aléatoire entre chaque titre pour éviter les blocages YouTube
+- Détection automatique des feuilles, choix de la colonne et de la première ligne de données
 - Fichier `non_trouves.txt` généré si des titres n'ont pas été trouvés
-- Bouton "Réessayer les titres manquants" pour relancer uniquement les échecs
+
+### 📱 Synchronisation mobile (serveur Wi-Fi intégré)
+Un serveur web démarre automatiquement sur `http://localhost:8888` au lancement de l'app.
+- Clique sur **"📱 Télécharger sur mobile"** pour ouvrir l'interface web
+- Affiche ta bibliothèque et l'adresse IP à entrer sur le téléphone
+- Supprime des playlists directement depuis l'interface web
+- L'app Android détecte automatiquement le serveur sur le même Wi-Fi
 
 ---
 
@@ -68,8 +60,8 @@ Télécharge des musiques dans l'ordre défini dans un fichier Excel.
 
 - Thème clair / sombre
 - Langue FR / EN
-- Barre de progression avec estimation du temps restant (ETA)
-- Historique des 5 derniers téléchargements sur la page d'accueil
+- Barre de progression avec estimation du temps restant
+- Historique des derniers téléchargements
 - Ouverture du dossier de sortie en un clic
 - Notification sonore à la fin de chaque traitement
 
@@ -77,24 +69,11 @@ Télécharge des musiques dans l'ordre défini dans un fichier Excel.
 
 ## Utilisation
 
-### Streaming → YouTube
-1. Lance l'application
-2. Clique sur **Streaming → YouTube**
-3. Choisis ta plateforme (Deezer, Spotify, SoundCloud ou Apple Music)
-4. Colle l'URL ou l'ID de ta playlist
-5. Clique sur **Lancer** — une fenêtre de connexion Google s'ouvre au premier lancement
-6. La connexion est mémorisée pour les prochaines fois
-
 ### YouTube → MP3
 1. Clique sur **YouTube → MP3**
 2. Colle l'URL de la playlist YouTube
-3. Clique sur **Lancer** — les MP3 sont sauvegardés dans `playlists/`
-
-### Excel → MP3
-1. Clique sur **Excel → MP3**
-2. Sélectionne ton fichier Excel via **Parcourir...**
-3. Choisis la feuille, la colonne et la première ligne de données
-4. Entre un nom de playlist et clique sur **Lancer**
+3. Clique sur **Lancer** — les MP3 sont sauvegardés dans `~/PlaylistManager/`
+4. Clique sur **📱 Télécharger sur mobile** pour synchroniser avec ton téléphone
 
 ---
 
@@ -115,4 +94,4 @@ pyinstaller PlaylistManager.spec
 
 ## Technologies
 
-Python · Tkinter · yt-dlp · spotdl · Deezer API · Spotify · SoundCloud · Apple Music · YouTube Data API v3 · openpyxl · keyring · PyInstaller
+Python · Tkinter · yt-dlp · FastAPI · uvicorn · spotdl · Deezer API · Spotify · SoundCloud · Apple Music · YouTube Data API v3 · openpyxl · keyring · PyInstaller

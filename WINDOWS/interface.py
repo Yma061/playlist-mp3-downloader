@@ -5,7 +5,16 @@ import sys
 import os
 import time
 import json
+import webbrowser
+from pathlib import Path
 from translations import t, set_lang, get_lang
+
+try:
+    from server import start_in_background as _start_server_fn
+    _SERVER_AVAILABLE = True
+except Exception:
+    _SERVER_AVAILABLE = False
+    _start_server_fn = None
 
 
 def _app_dir():
@@ -121,6 +130,35 @@ class App(tk.Tk):
         self.container = tk.Frame(self, bg=BG)
         self.container.pack(fill="both", expand=True)
         self.show_home()
+        self._start_wifi_server()
+
+    def _free_port(self, port):
+        """Tue le processus qui occupe le port s'il y en a un."""
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["netstat", "-ano"], capture_output=True, text=True
+            )
+            for line in result.stdout.splitlines():
+                if f":{port}" in line and "LISTENING" in line:
+                    pid = line.strip().split()[-1]
+                    subprocess.run(["taskkill", "/F", "/PID", pid],
+                                   capture_output=True)
+                    time.sleep(0.8)
+                    break
+        except Exception:
+            pass
+
+    def _start_wifi_server(self):
+        if not _SERVER_AVAILABLE:
+            print("[Serveur Wi-Fi] Module non disponible")
+            return
+        self._free_port(8888)
+        try:
+            th = threading.Thread(target=_start_server_fn, daemon=True)
+            th.start()
+        except Exception as e:
+            print(f"[Serveur Wi-Fi] Erreur au démarrage : {e}")
 
     def clear(self):
         for w in self.container.winfo_children():
@@ -208,6 +246,14 @@ class HomePage(tk.Frame):
         cards_frame.pack()
         for card in self.CARDS:
             self._make_card(cards_frame, card)
+
+        # ── Bouton mobile ────────────────────────────────────────────────────
+        tk.Button(self, text="📱  Télécharger sur mobile",
+                  font=FONT, bg=ACCENT3, fg="white", bd=0, cursor="hand2",
+                  activebackground=_lighten(ACCENT3), activeforeground="white",
+                  padx=20, pady=8,
+                  command=lambda: webbrowser.open("http://localhost:8888")
+                  ).pack(pady=(20, 0))
 
         # ── Historique ───────────────────────────────────────────────────────
         history = load_history()
@@ -1013,7 +1059,8 @@ class DetailPage(tk.Frame):
                     self.after(0, lambda t=total: self._show_progress(t))
                 self.update_progress(done, current)
 
-            dest = os.path.join(_app_dir(), "playlists")
+            dest = str(Path.home() / "PlaylistManager")
+            Path(dest).mkdir(exist_ok=True)
             download_and_convert_playlist(url, output_folder=dest, on_progress=on_progress)
             self._dest_path = dest
             dest_abs = os.path.abspath(dest)
