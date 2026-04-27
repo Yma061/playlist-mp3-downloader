@@ -149,10 +149,38 @@ class App(tk.Tk):
         except Exception:
             pass
 
+    def _ensure_firewall(self):
+        """Ajoute une règle pare-feu pour le port 8888 si elle n'existe pas."""
+        try:
+            import subprocess, ctypes
+            check = subprocess.run(
+                ["netsh", "advfirewall", "firewall", "show", "rule",
+                 "name=PlaylistManager-8888"],
+                capture_output=True, text=True
+            )
+            if "PlaylistManager-8888" not in check.stdout:
+                result = subprocess.run(
+                    ["netsh", "advfirewall", "firewall", "add", "rule",
+                     "name=PlaylistManager-8888", "dir=in", "action=allow",
+                     "protocol=TCP", "localport=8888"],
+                    capture_output=True
+                )
+                if result.returncode != 0:
+                    # Relance avec élévation UAC (invite unique)
+                    ctypes.windll.shell32.ShellExecuteW(
+                        None, "runas", "netsh",
+                        "advfirewall firewall add rule name=PlaylistManager-8888 "
+                        "dir=in action=allow protocol=TCP localport=8888",
+                        None, 0
+                    )
+        except Exception:
+            pass
+
     def _start_wifi_server(self):
         if not _SERVER_AVAILABLE:
             print("[Serveur Wi-Fi] Module non disponible")
             return
+        self._ensure_firewall()
         self._free_port(8888)
         try:
             th = threading.Thread(target=_start_server_fn, daemon=True)
