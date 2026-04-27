@@ -8,6 +8,17 @@ Application mobile Flutter pour écouter hors-ligne les playlists synchronisées
 
 ---
 
+## Fonctionnalités
+
+- Sync Wi-Fi avec le serveur desktop (détection mDNS automatique ou IP manuelle)
+- Interface style Spotify : playlist → liste des titres → lecteur plein écran
+- Lecteur avec slider de progression, prev/pause/next
+- Mini-player cliquable en bas de l'écran
+- Lecture **100% hors-ligne** une fois synchronisé
+- Thème clair / sombre
+
+---
+
 ## Lancer depuis les sources
 
 ```bash

@@ -21,7 +21,10 @@ Dernière version : **v2.0.0**
 
 - Bibliothèque musicale locale
 - Sync Wi-Fi automatique avec le serveur desktop (détection mDNS ou IP manuelle)
-- Lecture hors-ligne
+- Interface style Spotify : clique sur une playlist pour voir tous les titres
+- Lecteur plein écran avec slider de progression, boutons prev/pause/next
+- Mini-player persistant en bas de l'écran, cliquable pour ouvrir le lecteur
+- Lecture **100% hors-ligne** une fois synchronisé
 - Thème clair / sombre
 
 ---
@@ -33,4 +36,4 @@ Dernière version : **v2.0.0**
 3. Connecte ton téléphone et ton PC au **même Wi-Fi**
 4. Ouvre l'app → **Sync bureau** → **Détecter automatiquement**
 5. Sélectionne ta playlist → **Synchroniser**
-6. Écoute ta musique **hors-ligne** 🎧
+6. Clique sur la playlist → choisis un titre → écoute hors-ligne 🎧

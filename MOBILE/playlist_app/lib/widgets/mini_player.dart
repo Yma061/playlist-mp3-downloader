@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/music_service.dart';
 import '../theme/app_theme.dart';
+import '../pages/player_page.dart';
 
 class MiniPlayer extends StatelessWidget {
   const MiniPlayer({super.key});
@@ -17,7 +18,10 @@ class MiniPlayer extends StatelessWidget {
         ? music.position.inMilliseconds / music.duration.inMilliseconds
         : 0.0;
 
-    return Container(
+    return GestureDetector(
+      onTap: () => Navigator.push(
+          context, MaterialPageRoute(builder: (_) => const PlayerPage())),
+      child: Container(
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         boxShadow: [
@@ -101,6 +105,6 @@ class MiniPlayer extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ));
   }
 }

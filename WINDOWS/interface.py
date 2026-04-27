@@ -277,11 +277,12 @@ class HomePage(tk.Frame):
 
         # ── Bouton mobile ────────────────────────────────────────────────────
         tk.Button(self, text="📱  Télécharger sur mobile",
-                  font=FONT, bg=ACCENT3, fg="white", bd=0, cursor="hand2",
+                  font=("Segoe UI", 14, "bold"), bg=ACCENT3, fg="white",
+                  bd=0, cursor="hand2", relief="flat",
                   activebackground=_lighten(ACCENT3), activeforeground="white",
-                  padx=20, pady=8,
+                  padx=40, pady=18,
                   command=lambda: webbrowser.open("http://localhost:8888")
-                  ).pack(pady=(20, 0))
+                  ).pack(pady=(24, 0))
 
         # ── Historique ───────────────────────────────────────────────────────
         history = load_history()

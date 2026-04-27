@@ -10,6 +10,7 @@ import os
 import socket
 import time
 import webbrowser
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import yt_dlp
@@ -18,7 +19,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from pydantic import BaseModel
-from zeroconf import ServiceInfo, Zeroconf
+from zeroconf import ServiceInfo
 from zeroconf.asyncio import AsyncZeroconf
 
 # ── Config ────────────────────────────────────────────────────────────────────
@@ -29,7 +30,19 @@ PORT = 8888
 
 # ── App ───────────────────────────────────────────────────────────────────────
 
-app = FastAPI(title="Playlist Manager Desktop")
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    ip = get_local_ip()
+    print(f"\n{'='*50}")
+    print(f"  Playlist Manager Desktop")
+    print(f"  Interface  : http://localhost:{PORT}")
+    print(f"  Téléphone  : http://{ip}:{PORT}")
+    print(f"{'='*50}\n")
+    webbrowser.open(f"http://localhost:{PORT}")
+    await start_mdns(ip, PORT)
+    yield
+
+app = FastAPI(title="Playlist Manager Desktop", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -330,19 +343,5 @@ async def start_mdns(ip: str, port: int):
         return None, None
 
 
-# ── Démarrage ─────────────────────────────────────────────────────────────────
-
-@app.on_event("startup")
-async def on_startup():
-    ip = get_local_ip()
-    print(f"\n{'='*50}")
-    print(f"  Playlist Manager Desktop")
-    print(f"  Interface  : http://localhost:{PORT}")
-    print(f"  Téléphone  : http://{ip}:{PORT}")
-    print(f"{'='*50}\n")
-    webbrowser.open(f"http://localhost:{PORT}")
-    await start_mdns(ip, PORT)
-
-
 if __name__ == "__main__":
-    uvicorn.run("server:app", host="0.0.0.0", port=PORT, reload=False)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)

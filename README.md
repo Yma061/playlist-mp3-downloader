@@ -21,7 +21,17 @@ Télécharge tes playlists YouTube sur PC et écoute-les hors-ligne sur Android.
 4. Connecte ton téléphone et ton PC au **même Wi-Fi**
 5. Ouvre l'app Android → **Sync bureau** → **Détecter automatiquement**
 6. Sélectionne ta playlist → **Synchroniser**
-7. Écoute ta musique **hors-ligne** 🎧
+7. Clique sur la playlist → navigue dans les titres → écoute **hors-ligne** 🎧
+
+---
+
+## 📱 App mobile
+
+- Bibliothèque avec toutes tes playlists synchronisées
+- Interface style Spotify : clique sur une playlist pour voir les titres
+- Lecteur plein écran avec slider de progression, prev/pause/next
+- Détection automatique du PC via Wi-Fi (mDNS)
+- Lecture **100% hors-ligne** une fois synchronisé
 
 ---
 

@@ -18,7 +18,7 @@ Windows peut afficher un message de sécurité car le fichier n'est pas signé p
 1. Clique sur **"Informations complémentaires"**
 2. Clique sur **"Exécuter quand même"**
 
-> Le fichier est open source — tu peux inspecter l'intégralité du code dans ce dépôt.
+Au premier lancement, une invite UAC apparaît pour autoriser le port 8888 dans le pare-feu — clique **Oui** une seule fois, c'est permanent.
 
 ---
 
@@ -49,7 +49,7 @@ Télécharge des musiques dans l'ordre défini dans un fichier Excel.
 
 ### 📱 Synchronisation mobile (serveur Wi-Fi intégré)
 Un serveur web démarre automatiquement sur `http://localhost:8888` au lancement de l'app.
-- Clique sur **"📱 Télécharger sur mobile"** pour ouvrir l'interface web
+- Clique sur le grand bouton **"📱 Télécharger sur mobile"** pour ouvrir l'interface web
 - Affiche ta bibliothèque et l'adresse IP à entrer sur le téléphone
 - Supprime des playlists directement depuis l'interface web
 - L'app Android détecte automatiquement le serveur sur le même Wi-Fi

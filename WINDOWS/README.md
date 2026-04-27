@@ -20,7 +20,7 @@ Windows may display a security warning because the file is not signed by a certi
 1. Click **"More info"**
 2. Click **"Run anyway"**
 
-> The file is open source — you can inspect the full source code in this repository.
+On first launch, a UAC prompt will appear to allow port 8888 through the firewall — click **Yes** once and it will never appear again.
 
 ---
 
@@ -51,7 +51,7 @@ Download tracks in the order defined in an Excel file.
 
 ### 📱 Mobile sync (built-in Wi-Fi server)
 A web server starts automatically on `http://localhost:8888` when the app launches.
-- Click **"📱 Télécharger sur mobile"** to open the web interface
+- Click the large **"📱 Télécharger sur mobile"** button to open the web interface
 - Shows your library and the IP address to enter on your phone
 - Delete playlists directly from the web interface
 - The Android app auto-detects the server on the same Wi-Fi
